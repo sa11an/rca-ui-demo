@@ -44,27 +44,7 @@ if uploaded_file is not None:
         st.bar_chart(icap_summary)
     else:
         st.error("❌ Column 'ICAP_Status' not found in file")
-    # -----------------------------
-    # Pareto Chart (Management View)
-    # -----------------------------
-    st.subheader("📊 Pareto Analysis (Top Root Causes)")
-
-    if "Root_Cause" in df.columns:
-        pareto_df = (
-            df["Root_Cause"]
-            .value_counts()
-            .reset_index()
-            .rename(columns={"index": "Root_Cause", "Root_Cause": "Count"})
-        )
-
-       pareto_df["Cumulative_%"] = pareto_df["Count"].cumsum() / pareto_df["Count"].sum() * 100
-
-       st.dataframe(pareto_df, use_container_width=True)
-
-       st.line_chart(pareto_df.set_index("Root_Cause")[["Cumulative_%"]])
-    else:
-       st.error("❌ Root_Cause column missing")
-
+    
     # -----------------------------
     # RCA Summary
     # -----------------------------
