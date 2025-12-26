@@ -8,7 +8,7 @@ st.title("🔧 Quality RCA – ICAP – ROI System")
 
 uploaded_file = st.file_uploader("Upload Complaint Data (CSV)", type=["csv"])
 
-if uploaded_file:
+if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
 
     st.subheader("📋 Complaint Data")
@@ -47,3 +47,7 @@ if uploaded_file:
         st.table(repeat_rca)
     else:
         st.success("✅ No repeat root causes")
+
+else:
+    st.info("⬆️ Please upload a CSV file to start analysis")
+
