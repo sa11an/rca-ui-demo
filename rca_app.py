@@ -1,47 +1,83 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="RCA & ICAP Engine", layout="wide")
-
+# -----------------------------
+# App Title
+# -----------------------------
+st.set_page_config(page_title="Quality RCA System", layout="wide")
 st.title("🔧 Quality RCA – ICAP – ROI System")
 
-uploaded_file = st.file_uploader("Upload Complaint Data (CSV)", type=["csv"])
+# -----------------------------
+# File Upload
+# -----------------------------
+uploaded_file = st.file_uploader(
+    "Upload Complaint Data (Excel or CSV)",
+    type=["csv", "xlsx", "xls"]
+)
 
+# -----------------------------
+# Main Logic
+# -----------------------------
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
 
+    # Read file safely
+    try:
+        if uploaded_file.name.endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
+        else:
+            df = pd.read_excel(uploaded_file)
+    except Exception as e:
+        st.error(f"❌ File read error: {e}")
+        st.stop()
+
+    # Show raw data
     st.subheader("📋 Complaint Data")
-    st.dataframe(df)
+    st.dataframe(df, use_container_width=True)
 
-    st.subheader("📊 Root Cause Pareto")
-    st.bar_chart(df["Root_Cause"].value_counts())
-
-    st.subheader("🤖 RCA Suggestion Engine")
-    issue = st.selectbox("Select Issue", df["Issue"].unique())
-    suggestions = (
-        df[df["Issue"] == issue]
-        .groupby("Root_Cause")
-        .size()
-        .sort_values(ascending=False)
-    )
-    st.table(suggestions)
-
-    st.subheader("💰 ROI Impact")
-    roi = df.groupby("Root_Cause").size() * 5000
-    st.bar_chart(roi)
-
+    # -----------------------------
+    # ICAP Effectiveness
+    # -----------------------------
     st.subheader("📈 ICAP Effectiveness")
-    st.bar_chart(df.groupby("ICAP_Status").size())
 
-    st.subheader("🚨 Repeat Problem Alert")
-    repeat_rca = df["Root_Cause"].value_counts()
-    repeat_rca = repeat_rca[repeat_rca > 1]
-
-    if not repeat_rca.empty:
-        st.error("⚠️ Repeat Root Causes Detected!")
-        st.table(repeat_rca)
+    if "ICAP_Status" in df.columns:
+        icap_summary = df.groupby("ICAP_Status").size()
+        st.bar_chart(icap_summary)
     else:
-        st.success("✅ No repeat root causes")
+        st.error("❌ Column 'ICAP_Status' not found in file")
+
+    # -----------------------------
+    # RCA Summary
+    # -----------------------------
+    st.subheader("🧠 Top Root Causes")
+
+    if "Root_Cause" in df.columns:
+        rca_summary = df["Root_Cause"].value_counts()
+        st.table(rca_summary)
+    else:
+        st.error("❌ Column 'Root_Cause' not found in file")
+
+    # -----------------------------
+    # Simple RCA Suggestion Engine
+    # -----------------------------
+    st.subheader("💡 RCA Suggestion Engine")
+
+    if "Issue" in df.columns and "Root_Cause" in df.columns:
+        issue_selected = st.selectbox(
+            "Select Issue",
+            df["Issue"].unique()
+        )
+
+        suggestion = (
+            df[df["Issue"] == issue_selected]["Root_Cause"]
+            .value_counts()
+            .idxmax()
+        )
+
+        st.success(
+            f"✅ Most common RCA for **{issue_selected}** is: **{suggestion}**"
+        )
+    else:
+        st.error("❌ Required columns: Issue, Root_Cause")
 
 else:
-    st.info("⬆️ Please upload a CSV file to start analysis")
+    st.info("⬆️ Please upload an Excel or CSV file to start")
