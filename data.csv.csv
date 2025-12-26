@@ -1,0 +1,9 @@
+Complaint_ID,Date,Model,Issue,Root_Cause,ICAP_Status
+C001,2025-01,X1,Noise,Bearing Failure,Done
+C002,2025-01,X1,Noise,Bearing Failure,Done
+C003,2025-02,X1,Leakage,Seal Damage,Open
+C004,2025-02,X2,Noise,Bearing Failure,Done
+C005,2025-03,X2,Overheat,Cooling Fan Fault,Open
+C006,2025-03,X2,Noise,Bearing Failure,Done
+C007,2025-03,X1,Leakage,Seal Damage,Done
+C008,2025-04,X1,Noise,Bearing Failure,Open
