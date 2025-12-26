@@ -35,6 +35,45 @@ if uploaded_file is not None:
     st.dataframe(df, use_container_width=True)
 
     # -----------------------------
+    # Pareto Chart (Management View)
+    # -----------------------------
+    st.subheader("📊 Pareto Analysis (Top Root Causes)")
+    
+    if "Root_Cause" in df.columns:
+        pareto_df = (
+            df["Root_Cause"]
+            .value_counts()
+            .reset_index()
+        )
+        pareto_df.columns = ["Root_Cause", "Count"]
+        
+        pareto_df["Cumulative_%"] = (
+            pareto_df["Count"].cumsum() / pareto_df["Count"].sum() * 100
+        )
+        
+        st.dataframe(pareto_df, use_container_width=True)
+        st.line_chart(pareto_df.set_index("Root_Cause")[["Cumulative_%"]])
+        
+    else:
+        st.error("❌ Root_Cause column missing")
+    
+    
+    # -----------------------------
+    # Repeat RCA – Management Alert
+    # -----------------------------
+    st.subheader("🚨 Repeat RCA – Management Attention Required")
+    
+    repeat_rca = df["Root_Cause"].value_counts()
+    repeat_rca = repeat_rca[repeat_rca > 1]
+    
+    if not repeat_rca.empty:
+        st.error("⚠️ Repeat Root Causes Detected (High Risk)")
+        st.table(repeat_rca)
+    else:
+        st.success("✅ No repeat root causes detected")
+
+     
+    # -----------------------------
     # ICAP Effectiveness
     # -----------------------------
     st.subheader("📈 ICAP Effectiveness")
