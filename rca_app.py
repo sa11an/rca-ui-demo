@@ -33,30 +33,40 @@ if uploaded_file is not None:
     # Show raw data
     st.subheader("📋 Complaint Data")
     st.dataframe(df, use_container_width=True)
-
+    
     # -----------------------------
-    # Pareto Chart (Management View)
+    # Pareto + ROI (Management Decision View)
     # -----------------------------
-    st.subheader("📊 Pareto Analysis (Top Root Causes)")
+    st.subheader("📊 Pareto + ₹ Impact (Decision View)")
     
     if "Root_Cause" in df.columns:
-        pareto_df = (
+    
+        pareto_roi = (
             df["Root_Cause"]
             .value_counts()
             .reset_index()
         )
-        pareto_df.columns = ["Root_Cause", "Count"]
+        pareto_roi.columns = ["Root_Cause", "Complaints"]
         
-        pareto_df["Cumulative_%"] = (
-            pareto_df["Count"].cumsum() / pareto_df["Count"].sum() * 100
+        # Cost assumption (can be configurable later)
+        COST_PER_COMPLAINT = 5000
+        pareto_roi["Estimated_₹_Loss"] = pareto_roi["Complaints"] * COST_PER_COMPLAINT
+        
+        # Cumulative %
+        pareto_roi["Cumulative_%"] = (
+            pareto_roi["Complaints"].cumsum()
+            / pareto_roi["Complaints"].sum() * 100
         )
         
-        st.dataframe(pareto_df, use_container_width=True)
-        st.line_chart(pareto_df.set_index("Root_Cause")[["Cumulative_%"]])
+        st.dataframe(pareto_roi, use_container_width=True)
         
+        st.bar_chart(
+            pareto_roi.set_index("Root_Cause")[["Estimated_₹_Loss"]]
+        )
+    
     else:
         st.error("❌ Root_Cause column missing")
-    
+
     
     # -----------------------------
     # Repeat RCA – Management Alert
