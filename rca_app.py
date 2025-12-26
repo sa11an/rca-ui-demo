@@ -34,12 +34,10 @@ if uploaded_file:
     roi = df.groupby("Root_Cause").size() * COST_PER_COMPLAINT
     st.bar_chart(roi)
 
-    # ✅ ICAP EFFECTIVENESS (INSIDE IF)
     st.subheader("📈 ICAP Effectiveness")
     icap_summary = df.groupby("ICAP_Status").size()
     st.bar_chart(icap_summary)
 
-    # ✅ REPEAT RCA ALERT (INSIDE IF)
     st.subheader("🚨 Repeat Problem Alert")
     repeat_rca = df["Root_Cause"].value_counts()
     repeat_rca = repeat_rca[repeat_rca > 1]
