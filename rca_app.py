@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="RCA & ICAP Engine", layout="wide")
 
@@ -15,12 +14,10 @@ if uploaded_file is not None:
     st.dataframe(df)
 
     st.subheader("📊 Root Cause Pareto")
-    rca_count = df["Root_Cause"].value_counts()
-    st.bar_chart(rca_count)
+    st.bar_chart(df["Root_Cause"].value_counts())
 
     st.subheader("🤖 RCA Suggestion Engine")
     issue = st.selectbox("Select Issue", df["Issue"].unique())
-
     suggestions = (
         df[df["Issue"] == issue]
         .groupby("Root_Cause")
@@ -30,13 +27,11 @@ if uploaded_file is not None:
     st.table(suggestions)
 
     st.subheader("💰 ROI Impact")
-    COST_PER_COMPLAINT = 5000
-    roi = df.groupby("Root_Cause").size() * COST_PER_COMPLAINT
+    roi = df.groupby("Root_Cause").size() * 5000
     st.bar_chart(roi)
 
     st.subheader("📈 ICAP Effectiveness")
-    icap_summary = df.groupby("ICAP_Status").size()
-    st.bar_chart(icap_summary)
+    st.bar_chart(df.groupby("ICAP_Status").size())
 
     st.subheader("🚨 Repeat Problem Alert")
     repeat_rca = df["Root_Cause"].value_counts()
@@ -50,4 +45,3 @@ if uploaded_file is not None:
 
 else:
     st.info("⬆️ Please upload a CSV file to start analysis")
-
